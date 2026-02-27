@@ -494,3 +494,82 @@ extension SettingsStore {
         return self.normalizeProviders(providers, maxCount: maxCount)
     }
 }
+
+extension SettingsStore {
+    private static let trustMRTDefaultAPIBaseURL = "https://laudable-platypus-239.convex.site"
+    // TODO(trustmrt-live): Replace localhost fallback with the production TrustMRT web URL after launch.
+    private static let trustMRTDefaultWebBaseURL = "http://localhost:3000"
+
+    var trustMRTEnabled: Bool {
+        get { self.defaultsState.trustMRTEnabled }
+        set {
+            self.defaultsState.trustMRTEnabled = newValue
+            self.userDefaults.set(newValue, forKey: "trustMRTEnabled")
+        }
+    }
+
+    var trustMRTConnectedUsername: String? {
+        get { self.defaultsState.trustMRTConnectedUsername }
+        set {
+            self.defaultsState.trustMRTConnectedUsername = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTConnectedUsername")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTConnectedUsername")
+            }
+        }
+    }
+
+    var trustMRTConnectedAvatarURL: String? {
+        get { self.defaultsState.trustMRTConnectedAvatarURL }
+        set {
+            self.defaultsState.trustMRTConnectedAvatarURL = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTConnectedAvatarURL")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTConnectedAvatarURL")
+            }
+        }
+    }
+
+    var trustMRTAPIBaseURLRaw: String? {
+        get { self.defaultsState.trustMRTAPIBaseURLRaw }
+        set {
+            self.defaultsState.trustMRTAPIBaseURLRaw = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTAPIBaseURL")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTAPIBaseURL")
+            }
+        }
+    }
+
+    var trustMRTWebBaseURLRaw: String? {
+        get { self.defaultsState.trustMRTWebBaseURLRaw }
+        set {
+            self.defaultsState.trustMRTWebBaseURLRaw = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTWebBaseURL")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTWebBaseURL")
+            }
+        }
+    }
+
+    var trustMRTAPIBaseURL: URL {
+        if let raw = self.trustMRTAPIBaseURLRaw,
+           let url = URL(string: raw),
+           !raw.isEmpty
+        {
+            return url
+        }
+        return URL(string: Self.trustMRTDefaultAPIBaseURL)!
+    }
+
+    var trustMRTWebBaseURL: URL? {
+        if let raw = self.trustMRTWebBaseURLRaw, !raw.isEmpty {
+            return URL(string: raw)
+        }
+        return URL(string: Self.trustMRTDefaultWebBaseURL)
+    }
+}

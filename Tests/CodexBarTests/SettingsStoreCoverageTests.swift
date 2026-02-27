@@ -108,6 +108,43 @@ struct SettingsStoreCoverageTests {
     }
 
     @Test
+    func trustMRTDefaultsUseExpectedFallbacks() throws {
+        let suite = "SettingsStoreCoverageTests-trustmrt-defaults"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        let configStore = testConfigStore(suiteName: suite)
+        let settings = Self.makeSettingsStore(userDefaults: defaults, configStore: configStore)
+
+        #expect(settings.trustMRTEnabled == false)
+        #expect(settings.trustMRTConnectedUsername == nil)
+        #expect(settings.trustMRTConnectedAvatarURL == nil)
+        #expect(settings.trustMRTAPIBaseURL.absoluteString == "https://laudable-platypus-239.convex.site")
+        #expect(settings.trustMRTWebBaseURL?.absoluteString == "http://localhost:3000")
+    }
+
+    @Test
+    func trustMRTSettingsPersistAcrossStoreReload() throws {
+        let suite = "SettingsStoreCoverageTests-trustmrt-persistence"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        let configStore = testConfigStore(suiteName: suite)
+
+        let first = Self.makeSettingsStore(userDefaults: defaults, configStore: configStore)
+        first.trustMRTEnabled = true
+        first.trustMRTConnectedUsername = "alice"
+        first.trustMRTConnectedAvatarURL = "https://example.test/avatar.png"
+        first.trustMRTAPIBaseURLRaw = "https://api.example.test"
+        first.trustMRTWebBaseURLRaw = "https://web.example.test"
+
+        let second = Self.makeSettingsStore(userDefaults: defaults, configStore: configStore)
+        #expect(second.trustMRTEnabled == true)
+        #expect(second.trustMRTConnectedUsername == "alice")
+        #expect(second.trustMRTConnectedAvatarURL == "https://example.test/avatar.png")
+        #expect(second.trustMRTAPIBaseURL.absoluteString == "https://api.example.test")
+        #expect(second.trustMRTWebBaseURL?.absoluteString == "https://web.example.test")
+    }
+
+    @Test
     func ensureTokenLoadersExecute() {
         let settings = Self.makeSettingsStore()
 

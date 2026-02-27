@@ -23,6 +23,10 @@ struct GeneralPane: View {
 
                 Divider()
 
+                self.trustMRTSection
+
+                Divider()
+
                 SettingsSection(contentSpacing: 12) {
                     Text("Usage")
                         .font(.caption)
@@ -112,6 +116,125 @@ struct GeneralPane: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
+        }
+    }
+
+    private var trustMRTAPIBaseURLBinding: Binding<String> {
+        Binding(
+            get: { self.settings.trustMRTAPIBaseURLRaw ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.settings.trustMRTAPIBaseURLRaw = trimmed.isEmpty ? nil : trimmed
+            })
+    }
+
+    private var trustMRTWebBaseURLBinding: Binding<String> {
+        Binding(
+            get: { self.settings.trustMRTWebBaseURLRaw ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.settings.trustMRTWebBaseURLRaw = trimmed.isEmpty ? nil : trimmed
+            })
+    }
+
+    private var trustMRTSection: some View {
+        SettingsSection(contentSpacing: 12) {
+            Text("TrustMRT")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Connect CodexBar to TrustMRT leaderboard.")
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary)
+
+                self.trustMRTConnectionStatusLine
+                self.trustMRTActionRow
+
+                if self.settings.debugMenuEnabled {
+                    self.trustMRTDebugConfigurationSection
+                }
+
+                if let status = self.store.trustMRTLastExportStatus, !status.isEmpty {
+                    Text(status)
+                        .font(.footnote)
+                        .foregroundStyle(.tertiary)
+                }
+
+                if let error = self.store.trustMRTLastError, !error.isEmpty {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var trustMRTConnectionStatusLine: some View {
+        if self.store.trustMRTIsConnected,
+           let username = self.store.trustMRTConnectedUsername
+        {
+            Text("Connected as @\(username)")
+                .font(.body)
+        } else {
+            Text("Not connected")
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var trustMRTActionRow: some View {
+        HStack(spacing: 10) {
+            Button("Connect with GitHub") {
+                Task { await self.store.connectTrustMRT() }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(self.store.trustMRTConnecting)
+
+            Button("Disconnect") {
+                self.store.disconnectTrustMRT()
+            }
+            .buttonStyle(.bordered)
+            .disabled(!self.store.trustMRTIsConnected || self.store.trustMRTConnecting)
+
+            if self.store.trustMRTConnecting {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+    }
+
+    private var trustMRTDebugConfigurationSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Debug configuration")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            TextField(
+                "TrustMRT API base URL",
+                text: self.trustMRTAPIBaseURLBinding)
+                .textFieldStyle(.roundedBorder)
+                .font(.footnote)
+                .autocorrectionDisabled(true)
+
+            TextField(
+                "TrustMRT web base URL (optional)",
+                text: self.trustMRTWebBaseURLBinding)
+                .textFieldStyle(.roundedBorder)
+                .font(.footnote)
+                .autocorrectionDisabled(true)
+
+            Text("API: \(self.settings.trustMRTAPIBaseURL.absoluteString)")
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Web: \(self.settings.trustMRTWebBaseURL?.absoluteString ?? "(uses API base)")")
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

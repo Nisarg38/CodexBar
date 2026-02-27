@@ -55,6 +55,8 @@ public enum LogCategories {
     public static let tokenAccounts = "token-accounts"
     public static let tokenCost = "token-cost"
     public static let ttyRunner = "tty-runner"
+    public static let trustMRTConnect = "trustmrt-connect"
+    public static let trustMRTExport = "trustmrt-export"
     public static let vertexAIFetcher = "vertexai-fetcher"
     public static let warpUsage = "warp-usage"
     public static let webkitTeardown = "webkit-teardown"

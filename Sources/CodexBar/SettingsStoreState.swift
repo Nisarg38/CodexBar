@@ -33,4 +33,9 @@ struct SettingsDefaultsState: Sendable {
     var mergedOverviewSelectedProvidersRaw: [String]
     var selectedMenuProviderRaw: String?
     var providerDetectionCompleted: Bool
+    var trustMRTEnabled: Bool
+    var trustMRTConnectedUsername: String?
+    var trustMRTConnectedAvatarURL: String?
+    var trustMRTAPIBaseURLRaw: String?
+    var trustMRTWebBaseURLRaw: String?
 }
