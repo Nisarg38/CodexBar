@@ -95,8 +95,26 @@ extension UsageStore {
 
         guard !Task.isCancelled else { return }
 
-        let totals = self.currentTrustMRTProviderTotals()
-        if totals.isEmpty {
+        // Check if the server has requested a fresh sync (e.g. new profile created).
+        // If so, clear the baseline so the next export sends complete data.
+        do {
+            let syncEndpoint = self.settings.trustMRTAPIBaseURL.appending(path: "api/plugin/sync-status")
+            let syncStatus = try await self.trustMRTExporter.checkSyncStatus(
+                endpoint: syncEndpoint,
+                pluginToken: token)
+            if syncStatus.syncNeeded {
+                self.trustMRTExporter.clearBaseline()
+                self.trustMRTExportLogger.info("Sync requested by server — cleared baseline for full re-export")
+            }
+        } catch {
+            // Don't block normal exports if the sync check fails
+            self.trustMRTExportLogger.debug("Sync status check failed (non-fatal): \(error.localizedDescription)")
+        }
+
+        guard !Task.isCancelled else { return }
+
+        let snapshots = self.currentTrustMRTProviderSnapshots()
+        if snapshots.isEmpty {
             self.trustMRTLastExportStatus = "Waiting for Codex/Claude usage totals"
             return
         }
@@ -110,7 +128,7 @@ extension UsageStore {
                 pluginToken: token,
                 appVersion: version,
                 source: "trustmrt",
-                currentTotals: totals)
+                currentSnapshots: snapshots)
             guard !Task.isCancelled else { return }
 
             switch result {
@@ -137,12 +155,27 @@ extension UsageStore {
         }
     }
 
-    private func currentTrustMRTProviderTotals() -> [String: Int] {
-        var summary: [String: Int] = [:]
-        for provider in [UsageProvider.codex, .claude] {
+    private func currentTrustMRTProviderSnapshots() -> [String: TrustMRTProviderSnapshot] {
+        var summary: [String: TrustMRTProviderSnapshot] = [:]
+        for provider in [UsageProvider.codex, .claude, .cursor, .gemini, .copilot] {
             guard let snapshot = self.tokenSnapshots[provider] else { continue }
             guard let tokens = snapshot.last30DaysTokens, tokens >= 0 else { continue }
-            summary[provider.rawValue] = tokens
+
+            // Aggregate input/output tokens from daily entries
+            var totalInput = 0
+            var totalOutput = 0
+            for entry in snapshot.daily {
+                totalInput += entry.inputTokens ?? 0
+                totalOutput += entry.outputTokens ?? 0
+            }
+            let hasBreakdown = totalInput > 0 || totalOutput > 0
+
+            summary[provider.rawValue] = TrustMRTProviderSnapshot(
+                tokens: tokens,
+                costUSD: snapshot.last30DaysCostUSD,
+                inputTokens: hasBreakdown ? totalInput : nil,
+                outputTokens: hasBreakdown ? totalOutput : nil,
+                daily: snapshot.daily)
         }
         return summary
     }

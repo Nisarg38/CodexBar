@@ -105,7 +105,7 @@ public final class TrustMRTConnector: @unchecked Sendable {
     public func connect() async throws -> TrustMRTConnectionResult {
         #if canImport(Network)
         let expectedState = Self.makeRandomState()
-        let callbackServer = CallbackLoopbackServer()
+        let callbackServer = CallbackLoopbackServer(webRedirectURL: self.webBaseURL)
         let callbackURL = try await callbackServer.start()
         defer { callbackServer.stop() }
 
@@ -214,6 +214,7 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
         case listenerFailed
     }
 
+    private let webRedirectURL: URL?
     private let queue = DispatchQueue(label: "trustmrt.loopback.server")
     private let lock = NSLock()
     private var listener: NWListener?
@@ -221,6 +222,10 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
     private var callbackResolved = false
     private var pendingCallbackResult: Result<CallbackPayload, Error>?
     private var didResumeStart = false
+
+    init(webRedirectURL: URL? = nil) {
+        self.webRedirectURL = webRedirectURL
+    }
 
     func start() async throws -> URL {
         let listener = try NWListener(using: .tcp)
@@ -351,6 +356,13 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
     }
 
     private func sendSuccessResponse(on connection: NWConnection) {
+        let redirectTarget = self.webRedirectURL?.absoluteString ?? ""
+        let metaRedirect = redirectTarget.isEmpty
+            ? ""
+            : "<meta http-equiv=\"refresh\" content=\"1;url=\(redirectTarget)/profile\" />"
+        let statusText = redirectTarget.isEmpty
+            ? "You can close this tab now."
+            : "Redirecting to your profile…"
         let html = """
         <!doctype html>
         <html>
@@ -358,6 +370,7 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
           <meta charset=\"utf-8\" />
           <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
           <title>TrustMRT Connected</title>
+          \(metaRedirect)
           <style>
             body {
               margin: 0;
@@ -382,29 +395,9 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
         </head>
         <body>
           <div class=\"card\">
-            <h3>TrustMRT Connected</h3>
-            <p id=\"status\">Closing this tab and returning to CodexBar…</p>
+            <h3>TrustMRT Connected!</h3>
+            <p>\(statusText)</p>
           </div>
-          <script>
-            (function () {
-              function tryClose() {
-                window.close();
-                self.close();
-                window.open("", "_self");
-                window.close();
-              }
-              setTimeout(tryClose, 1);
-              setTimeout(tryClose, 150);
-              setTimeout(tryClose, 700);
-              setTimeout(tryClose, 1400);
-              setTimeout(function () {
-                var el = document.getElementById("status");
-                if (el) {
-                  el.textContent = "Auto-close was blocked by your browser. You can close this tab now.";
-                }
-              }, 1800);
-            })();
-          </script>
         </body>
         </html>
         """

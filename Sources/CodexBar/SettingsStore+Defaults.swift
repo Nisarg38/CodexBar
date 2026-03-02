@@ -497,8 +497,7 @@ extension SettingsStore {
 
 extension SettingsStore {
     private static let trustMRTDefaultAPIBaseURL = "https://laudable-platypus-239.convex.site"
-    // TODO(trustmrt-live): Replace localhost fallback with the production TrustMRT web URL after launch.
-    private static let trustMRTDefaultWebBaseURL = "http://localhost:3000"
+    private static let trustMRTDefaultWebBaseURL = "https://token-leaderboard-lac.vercel.app"
 
     var trustMRTEnabled: Bool {
         get { self.defaultsState.trustMRTEnabled }

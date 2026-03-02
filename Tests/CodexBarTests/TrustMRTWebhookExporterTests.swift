@@ -15,15 +15,14 @@ struct TrustMRTWebhookExporterTests {
 
         let exporter = TrustMRTWebhookExporter(
             session: session,
-            userDefaults: defaults,
-            stateKey: "state")
+            userDefaults: defaults)
         let endpoint = try #require(URL(string: "https://example.test/api/plugin/import"))
 
         let first = try await exporter.exportUsage(
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 100, "claude": 40])
+            currentSnapshots: ["codex": .init(tokens: 100), "claude": .init(tokens: 40)])
         #expect(first == .posted(providerCount: 2))
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 1)
 
@@ -31,7 +30,7 @@ struct TrustMRTWebhookExporterTests {
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 150, "claude": 40])
+            currentSnapshots: ["codex": .init(tokens: 150), "claude": .init(tokens: 40)])
         #expect(second == .posted(providerCount: 1))
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 2)
     }
@@ -47,22 +46,21 @@ struct TrustMRTWebhookExporterTests {
 
         let exporter = TrustMRTWebhookExporter(
             session: session,
-            userDefaults: defaults,
-            stateKey: "state")
+            userDefaults: defaults)
         let endpoint = try #require(URL(string: "https://example.test/api/plugin/import"))
 
         _ = try await exporter.exportUsage(
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 200])
+            currentSnapshots: ["codex": .init(tokens: 200)])
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 1)
 
         let result = try await exporter.exportUsage(
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 100])
+            currentSnapshots: ["codex": .init(tokens: 100)])
         #expect(result == .skippedNoDelta)
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 1)
     }
@@ -78,15 +76,14 @@ struct TrustMRTWebhookExporterTests {
 
         let exporter = TrustMRTWebhookExporter(
             session: session,
-            userDefaults: defaults,
-            stateKey: "state")
+            userDefaults: defaults)
 
         do {
             _ = try await exporter.exportUsage(
                 endpoint: nil,
                 pluginToken: "plg_test",
                 appVersion: "1.0.0",
-                currentTotals: ["codex": 100])
+                currentSnapshots: ["codex": .init(tokens: 100)])
             Issue.record("Expected missing configuration error")
         } catch let error as TrustMRTExportError {
             guard case .missingConfiguration = error else {
@@ -113,8 +110,7 @@ struct TrustMRTWebhookExporterTests {
 
         let exporter = TrustMRTWebhookExporter(
             session: session,
-            userDefaults: defaults,
-            stateKey: "state")
+            userDefaults: defaults)
         let endpoint = try #require(URL(string: "https://example.test/api/plugin/import"))
 
         do {
@@ -122,7 +118,7 @@ struct TrustMRTWebhookExporterTests {
                 endpoint: endpoint,
                 pluginToken: "plg_test",
                 appVersion: "1.0.0",
-                currentTotals: ["codex": 100])
+                currentSnapshots: ["codex": .init(tokens: 100)])
             Issue.record("Expected server error")
         } catch let error as TrustMRTExportError {
             guard case let .serverError(status, body) = error else {
@@ -147,22 +143,21 @@ struct TrustMRTWebhookExporterTests {
 
         let exporter = TrustMRTWebhookExporter(
             session: session,
-            userDefaults: defaults,
-            stateKey: "state")
+            userDefaults: defaults)
         let endpoint = try #require(URL(string: "https://example.test/api/plugin/import"))
 
         let first = try await exporter.exportUsage(
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 100])
+            currentSnapshots: ["codex": .init(tokens: 100)])
         #expect(first == .posted(providerCount: 1))
 
         let second = try await exporter.exportUsage(
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 100])
+            currentSnapshots: ["codex": .init(tokens: 100)])
         #expect(second == .skippedNoDelta)
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 1)
 
@@ -172,7 +167,7 @@ struct TrustMRTWebhookExporterTests {
             endpoint: endpoint,
             pluginToken: "plg_test",
             appVersion: "1.0.0",
-            currentTotals: ["codex": 100])
+            currentSnapshots: ["codex": .init(tokens: 100)])
         #expect(third == .posted(providerCount: 1))
         #expect(TrustMRTWebhookExporterStubURLProtocol.requestCount == 2)
     }
