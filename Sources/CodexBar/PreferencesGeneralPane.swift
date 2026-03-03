@@ -174,7 +174,7 @@ struct GeneralPane: View {
                 Task { await self.store.connectTrustMRT() }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(self.store.trustMRTConnecting)
+            .disabled(self.store.trustMRTIsConnected || self.store.trustMRTConnecting)
 
             Button("Disconnect") {
                 self.store.disconnectTrustMRT()

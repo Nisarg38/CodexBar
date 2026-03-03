@@ -74,6 +74,8 @@ extension UsageStore {
         self.trustMRTExportTask?.cancel()
         self.trustMRTExportTask = Task { @MainActor [weak self] in
             guard let self else { return }
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
             await self.performTrustMRTExport(reason: reason)
         }
     }
@@ -157,7 +159,7 @@ extension UsageStore {
 
     private func currentTrustMRTProviderSnapshots() -> [String: TrustMRTProviderSnapshot] {
         var summary: [String: TrustMRTProviderSnapshot] = [:]
-        for provider in [UsageProvider.codex, .claude, .cursor, .gemini, .copilot] {
+        for provider in UsageProvider.allCases {
             guard let snapshot = self.tokenSnapshots[provider] else { continue }
             guard let tokens = snapshot.last30DaysTokens, tokens >= 0 else { continue }
 

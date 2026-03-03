@@ -532,7 +532,10 @@ extension SettingsStore {
     }
 
     var trustMRTAPIBaseURL: URL {
-        URL(string: Self.trustMRTDefaultAPIBaseURL)!
+        guard let url = URL(string: Self.trustMRTDefaultAPIBaseURL) else {
+            preconditionFailure("trustMRTDefaultAPIBaseURL is not a valid URL: \(Self.trustMRTDefaultAPIBaseURL)")
+        }
+        return url
     }
 
     var trustMRTWebBaseURL: URL? {

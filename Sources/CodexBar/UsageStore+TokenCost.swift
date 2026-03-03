@@ -38,7 +38,7 @@ extension UsageStore {
         self.lastTokenFetchAt.removeValue(forKey: provider)
     }
 
-    func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
+    internal func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
         let isTokenCostProvider = provider == .codex || provider == .claude || provider == .vertexai
         let shouldFetch = isTokenCostProvider
             && (self.settings.costUsageEnabled || self.settings.trustMRTEnabled)

@@ -64,7 +64,7 @@ public enum TrustMRTConnectorError: LocalizedError {
     }
 }
 
-public final class TrustMRTConnector: @unchecked Sendable {
+public final class TrustMRTConnector: Sendable {
     private struct StartResponse: Decodable {
         let success: Bool
         let connectUrl: String
@@ -356,7 +356,12 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
     }
 
     private func sendSuccessResponse(on connection: NWConnection) {
-        let redirectTarget = self.webRedirectURL?.absoluteString ?? ""
+        let rawRedirect = self.webRedirectURL?.absoluteString ?? ""
+        let redirectTarget = rawRedirect
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
         let metaRedirect = redirectTarget.isEmpty
             ? ""
             : "<meta http-equiv=\"refresh\" content=\"1;url=\(redirectTarget)/profile\" />"

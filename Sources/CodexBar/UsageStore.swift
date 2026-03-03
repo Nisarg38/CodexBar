@@ -182,20 +182,20 @@ final class UsageStore {
 
     @ObservationIgnored let codexFetcher: UsageFetcher
     @ObservationIgnored let claudeFetcher: any ClaudeUsageFetching
-    @ObservationIgnored let costUsageFetcher: CostUsageFetcher
+    @ObservationIgnored internal let costUsageFetcher: CostUsageFetcher
     @ObservationIgnored let browserDetection: BrowserDetection
     @ObservationIgnored private let registry: ProviderRegistry
     @ObservationIgnored let settings: SettingsStore
     @ObservationIgnored private let sessionQuotaNotifier: any SessionQuotaNotifying
     @ObservationIgnored private let sessionQuotaLogger = CodexBarLog.logger(LogCategories.sessionQuota)
     @ObservationIgnored private let openAIWebLogger = CodexBarLog.logger(LogCategories.openAIWeb)
-    @ObservationIgnored let tokenCostLogger = CodexBarLog.logger(LogCategories.tokenCost)
-    @ObservationIgnored let trustMRTConnectLogger = CodexBarLog.logger(LogCategories.trustMRTConnect)
-    @ObservationIgnored let trustMRTExportLogger = CodexBarLog.logger(LogCategories.trustMRTExport)
+    @ObservationIgnored internal let tokenCostLogger = CodexBarLog.logger(LogCategories.tokenCost)
+    @ObservationIgnored internal let trustMRTConnectLogger = CodexBarLog.logger(LogCategories.trustMRTConnect)
+    @ObservationIgnored internal let trustMRTExportLogger = CodexBarLog.logger(LogCategories.trustMRTExport)
     @ObservationIgnored let augmentLogger = CodexBarLog.logger(LogCategories.augment)
     @ObservationIgnored let providerLogger = CodexBarLog.logger(LogCategories.providers)
-    @ObservationIgnored let trustMRTExporter: TrustMRTWebhookExporter
-    @ObservationIgnored let trustMRTTokenStore: any TrustMRTPluginTokenStoring
+    @ObservationIgnored internal let trustMRTExporter: TrustMRTWebhookExporter
+    @ObservationIgnored internal let trustMRTTokenStore: any TrustMRTPluginTokenStoring
     @ObservationIgnored private var openAIWebDebugLines: [String] = []
     @ObservationIgnored var failureGates: [UsageProvider: ConsecutiveFailureGate] = [:]
     @ObservationIgnored var tokenFailureGates: [UsageProvider: ConsecutiveFailureGate] = [:]
@@ -206,13 +206,13 @@ final class UsageStore {
     @ObservationIgnored private var tokenTimerTask: Task<Void, Never>?
     @ObservationIgnored private var tokenRefreshSequenceTask: Task<Void, Never>?
     @ObservationIgnored private var pathDebugRefreshTask: Task<Void, Never>?
-    @ObservationIgnored var trustMRTExportTask: Task<Void, Never>?
+    @ObservationIgnored internal var trustMRTExportTask: Task<Void, Never>?
     @ObservationIgnored var lastKnownSessionRemaining: [UsageProvider: Double] = [:]
     @ObservationIgnored var lastKnownSessionWindowSource: [UsageProvider: SessionQuotaWindowSource] = [:]
     @ObservationIgnored var lastTokenFetchAt: [UsageProvider: Date] = [:]
     @ObservationIgnored private var hasCompletedInitialRefresh: Bool = false
-    @ObservationIgnored let tokenFetchTTL: TimeInterval = 60 * 60
-    @ObservationIgnored let tokenFetchTimeout: TimeInterval = 10 * 60
+    @ObservationIgnored internal let tokenFetchTTL: TimeInterval = 60 * 60
+    @ObservationIgnored internal let tokenFetchTimeout: TimeInterval = 10 * 60
 
     init(
         fetcher: UsageFetcher,
@@ -449,7 +449,7 @@ final class UsageStore {
             }
 
             // Token-cost usage can be slow; run it outside the refresh group so we don't block menu updates.
-            self.scheduleTokenRefresh(force: forceTokenUsage || self.settings.trustMRTEnabled)
+            self.scheduleTokenRefresh(force: forceTokenUsage)
 
             // OpenAI web scrape depends on the current Codex account email (which can change after login/account
             // switch). Run this after Codex usage refresh so we don't accidentally scrape with stale credentials.
