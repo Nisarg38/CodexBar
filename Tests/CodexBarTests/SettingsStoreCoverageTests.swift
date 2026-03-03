@@ -118,8 +118,8 @@ struct SettingsStoreCoverageTests {
         #expect(settings.trustMRTEnabled == false)
         #expect(settings.trustMRTConnectedUsername == nil)
         #expect(settings.trustMRTConnectedAvatarURL == nil)
-        #expect(settings.trustMRTAPIBaseURL.absoluteString == "https://laudable-platypus-239.convex.site")
-        #expect(settings.trustMRTWebBaseURL?.absoluteString == "http://localhost:3000")
+        #expect(settings.trustMRTAPIBaseURL.absoluteString == "https://trustmrt.com")
+        #expect(settings.trustMRTWebBaseURL?.absoluteString == "https://trustmrt.com")
     }
 
     @Test
@@ -133,15 +133,13 @@ struct SettingsStoreCoverageTests {
         first.trustMRTEnabled = true
         first.trustMRTConnectedUsername = "alice"
         first.trustMRTConnectedAvatarURL = "https://example.test/avatar.png"
-        first.trustMRTAPIBaseURLRaw = "https://api.example.test"
-        first.trustMRTWebBaseURLRaw = "https://web.example.test"
 
         let second = Self.makeSettingsStore(userDefaults: defaults, configStore: configStore)
         #expect(second.trustMRTEnabled == true)
         #expect(second.trustMRTConnectedUsername == "alice")
         #expect(second.trustMRTConnectedAvatarURL == "https://example.test/avatar.png")
-        #expect(second.trustMRTAPIBaseURL.absoluteString == "https://api.example.test")
-        #expect(second.trustMRTWebBaseURL?.absoluteString == "https://web.example.test")
+        #expect(second.trustMRTAPIBaseURL.absoluteString == "https://trustmrt.com")
+        #expect(second.trustMRTWebBaseURL?.absoluteString == "https://trustmrt.com")
     }
 
     @Test

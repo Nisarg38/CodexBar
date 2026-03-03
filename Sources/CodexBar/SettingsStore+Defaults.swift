@@ -496,8 +496,8 @@ extension SettingsStore {
 }
 
 extension SettingsStore {
-    private static let trustMRTDefaultAPIBaseURL = "https://laudable-platypus-239.convex.site"
-    private static let trustMRTDefaultWebBaseURL = "https://token-leaderboard-lac.vercel.app"
+    private static let trustMRTDefaultAPIBaseURL = "https://trustmrt.com"
+    private static let trustMRTDefaultWebBaseURL = "https://trustmrt.com"
 
     var trustMRTEnabled: Bool {
         get { self.defaultsState.trustMRTEnabled }
@@ -531,44 +531,11 @@ extension SettingsStore {
         }
     }
 
-    var trustMRTAPIBaseURLRaw: String? {
-        get { self.defaultsState.trustMRTAPIBaseURLRaw }
-        set {
-            self.defaultsState.trustMRTAPIBaseURLRaw = newValue
-            if let newValue {
-                self.userDefaults.set(newValue, forKey: "trustMRTAPIBaseURL")
-            } else {
-                self.userDefaults.removeObject(forKey: "trustMRTAPIBaseURL")
-            }
-        }
-    }
-
-    var trustMRTWebBaseURLRaw: String? {
-        get { self.defaultsState.trustMRTWebBaseURLRaw }
-        set {
-            self.defaultsState.trustMRTWebBaseURLRaw = newValue
-            if let newValue {
-                self.userDefaults.set(newValue, forKey: "trustMRTWebBaseURL")
-            } else {
-                self.userDefaults.removeObject(forKey: "trustMRTWebBaseURL")
-            }
-        }
-    }
-
     var trustMRTAPIBaseURL: URL {
-        if let raw = self.trustMRTAPIBaseURLRaw,
-           let url = URL(string: raw),
-           !raw.isEmpty
-        {
-            return url
-        }
-        return URL(string: Self.trustMRTDefaultAPIBaseURL)!
+        URL(string: Self.trustMRTDefaultAPIBaseURL)!
     }
 
     var trustMRTWebBaseURL: URL? {
-        if let raw = self.trustMRTWebBaseURLRaw, !raw.isEmpty {
-            return URL(string: raw)
-        }
-        return URL(string: Self.trustMRTDefaultWebBaseURL)
+        URL(string: Self.trustMRTDefaultWebBaseURL)
     }
 }

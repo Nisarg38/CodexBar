@@ -36,6 +36,4 @@ struct SettingsDefaultsState: Sendable {
     var trustMRTEnabled: Bool
     var trustMRTConnectedUsername: String?
     var trustMRTConnectedAvatarURL: String?
-    var trustMRTAPIBaseURLRaw: String?
-    var trustMRTWebBaseURLRaw: String?
 }

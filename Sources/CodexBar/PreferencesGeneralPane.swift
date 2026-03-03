@@ -119,24 +119,6 @@ struct GeneralPane: View {
         }
     }
 
-    private var trustMRTAPIBaseURLBinding: Binding<String> {
-        Binding(
-            get: { self.settings.trustMRTAPIBaseURLRaw ?? "" },
-            set: { newValue in
-                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                self.settings.trustMRTAPIBaseURLRaw = trimmed.isEmpty ? nil : trimmed
-            })
-    }
-
-    private var trustMRTWebBaseURLBinding: Binding<String> {
-        Binding(
-            get: { self.settings.trustMRTWebBaseURLRaw ?? "" },
-            set: { newValue in
-                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                self.settings.trustMRTWebBaseURLRaw = trimmed.isEmpty ? nil : trimmed
-            })
-    }
-
     private var trustMRTSection: some View {
         SettingsSection(contentSpacing: 12) {
             Text("TrustMRT")
@@ -212,20 +194,6 @@ struct GeneralPane: View {
             Text("Debug configuration")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-
-            TextField(
-                "TrustMRT API base URL",
-                text: self.trustMRTAPIBaseURLBinding)
-                .textFieldStyle(.roundedBorder)
-                .font(.footnote)
-                .autocorrectionDisabled(true)
-
-            TextField(
-                "TrustMRT web base URL (optional)",
-                text: self.trustMRTWebBaseURLBinding)
-                .textFieldStyle(.roundedBorder)
-                .font(.footnote)
-                .autocorrectionDisabled(true)
 
             Text("API: \(self.settings.trustMRTAPIBaseURL.absoluteString)")
                 .font(.footnote)

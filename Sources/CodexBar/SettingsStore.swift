@@ -225,9 +225,6 @@ extension SettingsStore {
         let trustMRTEnabled = userDefaults.object(forKey: "trustMRTEnabled") as? Bool ?? false
         let trustMRTConnectedUsername = userDefaults.string(forKey: "trustMRTConnectedUsername")
         let trustMRTConnectedAvatarURL = userDefaults.string(forKey: "trustMRTConnectedAvatarURL")
-        let trustMRTAPIBaseURLRaw = userDefaults.string(forKey: "trustMRTAPIBaseURL")
-        let trustMRTWebBaseURLRaw = userDefaults.string(forKey: "trustMRTWebBaseURL")
-
         return SettingsDefaultsState(
             refreshFrequency: refreshFrequency,
             launchAtLogin: launchAtLogin,
@@ -263,9 +260,7 @@ extension SettingsStore {
             providerDetectionCompleted: providerDetectionCompleted,
             trustMRTEnabled: trustMRTEnabled,
             trustMRTConnectedUsername: trustMRTConnectedUsername,
-            trustMRTConnectedAvatarURL: trustMRTConnectedAvatarURL,
-            trustMRTAPIBaseURLRaw: trustMRTAPIBaseURLRaw,
-            trustMRTWebBaseURLRaw: trustMRTWebBaseURLRaw)
+            trustMRTConnectedAvatarURL: trustMRTConnectedAvatarURL)
     }
 }
 
