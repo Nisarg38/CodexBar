@@ -331,6 +331,11 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
                 return
             }
 
+            if self.isPreflightRequest(merged) {
+                self.sendPreflightResponse(on: connection)
+                return
+            }
+
             let payload = self.parseCallbackPayload(from: merged)
             if let payload {
                 self.sendSuccessResponse(on: connection)
@@ -347,6 +352,7 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
         guard let firstLine = text.components(separatedBy: "\r\n").first else { return nil }
         let segments = firstLine.split(separator: " ")
         guard segments.count >= 2 else { return nil }
+        guard segments[0] == "GET" else { return nil }
         let path = String(segments[1])
         guard let components = URLComponents(string: "http://127.0.0.1\(path)") else { return nil }
         guard components.path == "/callback" else { return nil }
@@ -411,12 +417,34 @@ private final class CallbackLoopbackServer: @unchecked Sendable {
         HTTP/1.1 200 OK\r
         Content-Type: text/html; charset=utf-8\r
         Content-Length: \(body.count)\r
+        Access-Control-Allow-Origin: *\r
+        Access-Control-Allow-Private-Network: true\r
         Connection: close\r
         \r
         """
         var response = Data(headers.utf8)
         response.append(body)
         connection.send(content: response, completion: .contentProcessed { _ in
+            connection.cancel()
+        })
+    }
+
+    private func isPreflightRequest(_ data: Data) -> Bool {
+        guard let text = String(data: data, encoding: .utf8),
+              let firstLine = text.components(separatedBy: "\r\n").first else { return false }
+        return firstLine.hasPrefix("OPTIONS ")
+    }
+
+    private func sendPreflightResponse(on connection: NWConnection) {
+        let headers = "HTTP/1.1 204 No Content\r\n" +
+            "Access-Control-Allow-Origin: *\r\n" +
+            "Access-Control-Allow-Methods: GET, OPTIONS\r\n" +
+            "Access-Control-Allow-Headers: *\r\n" +
+            "Access-Control-Allow-Private-Network: true\r\n" +
+            "Access-Control-Max-Age: 86400\r\n" +
+            "Content-Length: 0\r\n" +
+            "Connection: close\r\n\r\n"
+        connection.send(content: Data(headers.utf8), completion: .contentProcessed { _ in
             connection.cancel()
         })
     }
