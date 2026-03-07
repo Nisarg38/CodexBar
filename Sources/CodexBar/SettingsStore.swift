@@ -222,7 +222,9 @@ extension SettingsStore {
             forKey: "mergedOverviewSelectedProviders") as? [String] ?? []
         let selectedMenuProviderRaw = userDefaults.string(forKey: "selectedMenuProvider")
         let providerDetectionCompleted = userDefaults.object(forKey: "providerDetectionCompleted") as? Bool ?? false
-
+        let trustMRTEnabled = userDefaults.object(forKey: "trustMRTEnabled") as? Bool ?? false
+        let trustMRTConnectedUsername = userDefaults.string(forKey: "trustMRTConnectedUsername")
+        let trustMRTConnectedAvatarURL = userDefaults.string(forKey: "trustMRTConnectedAvatarURL")
         return SettingsDefaultsState(
             refreshFrequency: refreshFrequency,
             launchAtLogin: launchAtLogin,
@@ -255,7 +257,10 @@ extension SettingsStore {
             mergedMenuLastSelectedWasOverview: mergedMenuLastSelectedWasOverview,
             mergedOverviewSelectedProvidersRaw: mergedOverviewSelectedProvidersRaw,
             selectedMenuProviderRaw: selectedMenuProviderRaw,
-            providerDetectionCompleted: providerDetectionCompleted)
+            providerDetectionCompleted: providerDetectionCompleted,
+            trustMRTEnabled: trustMRTEnabled,
+            trustMRTConnectedUsername: trustMRTConnectedUsername,
+            trustMRTConnectedAvatarURL: trustMRTConnectedAvatarURL)
     }
 }
 

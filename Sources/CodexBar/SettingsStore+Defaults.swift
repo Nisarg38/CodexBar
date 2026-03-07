@@ -494,3 +494,51 @@ extension SettingsStore {
         return self.normalizeProviders(providers, maxCount: maxCount)
     }
 }
+
+extension SettingsStore {
+    private static let trustMRTDefaultAPIBaseURL = "https://trustmrt.com"
+    private static let trustMRTDefaultWebBaseURL = "https://trustmrt.com"
+
+    var trustMRTEnabled: Bool {
+        get { self.defaultsState.trustMRTEnabled }
+        set {
+            self.defaultsState.trustMRTEnabled = newValue
+            self.userDefaults.set(newValue, forKey: "trustMRTEnabled")
+        }
+    }
+
+    var trustMRTConnectedUsername: String? {
+        get { self.defaultsState.trustMRTConnectedUsername }
+        set {
+            self.defaultsState.trustMRTConnectedUsername = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTConnectedUsername")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTConnectedUsername")
+            }
+        }
+    }
+
+    var trustMRTConnectedAvatarURL: String? {
+        get { self.defaultsState.trustMRTConnectedAvatarURL }
+        set {
+            self.defaultsState.trustMRTConnectedAvatarURL = newValue
+            if let newValue {
+                self.userDefaults.set(newValue, forKey: "trustMRTConnectedAvatarURL")
+            } else {
+                self.userDefaults.removeObject(forKey: "trustMRTConnectedAvatarURL")
+            }
+        }
+    }
+
+    var trustMRTAPIBaseURL: URL {
+        guard let url = URL(string: Self.trustMRTDefaultAPIBaseURL) else {
+            preconditionFailure("trustMRTDefaultAPIBaseURL is not a valid URL: \(Self.trustMRTDefaultAPIBaseURL)")
+        }
+        return url
+    }
+
+    var trustMRTWebBaseURL: URL? {
+        URL(string: Self.trustMRTDefaultWebBaseURL)
+    }
+}

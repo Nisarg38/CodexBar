@@ -44,6 +44,18 @@ struct PreferencesPaneSmokeTests {
         _ = AboutPane(updater: DisabledUpdaterController()).body
     }
 
+    @Test
+    func buildsGeneralPaneWithTrustMRTDebugConfigurationToggle() {
+        let settings = Self.makeSettingsStore(suite: "PreferencesPaneSmokeTests-trustmrt-debug-toggle")
+        let store = Self.makeUsageStore(settings: settings)
+
+        settings.debugMenuEnabled = false
+        _ = GeneralPane(settings: settings, store: store).body
+
+        settings.debugMenuEnabled = true
+        _ = GeneralPane(settings: settings, store: store).body
+    }
+
     private static func makeSettingsStore(suite: String) -> SettingsStore {
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
